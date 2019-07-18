@@ -1,4 +1,5 @@
 Retrive the way to add a node
+
 Get a kubeadm token on k8s-master:
 
 $ TOKEN=`sudo kubeadm token list | grep authentication | awk '{print $1}'`
