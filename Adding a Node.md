@@ -37,7 +37,7 @@ Use the token and the discovery token on k8s-node to add a new node on the node:
 # TOKEN=c3cf19.89e62945a88d7a91
 # DISCOVERY_TOKEN=b3bb83c24673649bf1909e9144929a64569b1a7988df97323a9a3449c3b4c1e6
 # ENDPOINT=192.168.1.105:6443
-
+```
 Run kubeadm join command to join the new node
 ```
  kubeadm join --token ${TOKEN} ${ENDPOINT} \
