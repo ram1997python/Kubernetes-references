@@ -1,6 +1,13 @@
 
+<dl>
+  <dt>Definition list</dt>
+  <dd>Is something people use sometimes.</dd>
 
-# **The below steps describe about how to retrieve Kuberenetes resources using Curl command.** 
+  <dt>Markdown in HTML</dt>
+  <dd>Does *not* work **very** well. Use HTML <em>tags</em>.</dd>
+</dl>
+
+ **The below steps describe about how to retrieve Kuberenetes resources using Curl command.** 
 
 ## Begin by reviewing the kubectl configuration file. We will use the three certificates and the API server address.
 
