@@ -3,7 +3,8 @@
 
 Begin by reviewing the kubectl configuration file. We will use the three certificates and the API server address.
 
-``` student@lfs458-node-1a0a:~$ less ~/.kube/config
+```
+student@lfs458-node-1a0a:~$ less ~/.kube/config
 
     <output_omitted>
 ```
