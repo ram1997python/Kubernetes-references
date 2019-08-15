@@ -1,4 +1,4 @@
-Retrive the way to add a node
+## Retrive the way to add a node
 
 Get a kubeadm token on k8s-master:
 
