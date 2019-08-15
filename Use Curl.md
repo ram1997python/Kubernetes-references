@@ -1,11 +1,12 @@
 
-## The below steps describe about how to retrieve Kuberenetes resources using Curl command
+### The below steps describe about how to retrieve Kuberenetes resources using Curl command
 
-#### Begin by reviewing the kubectl configuration file. We will use the three certificates and the API server address.
+Begin by reviewing the kubectl configuration file. We will use the three certificates and the API server address.
 
-student@lfs458-node-1a0a:~$ less ~/.kube/config
-<output_omitted>
+``` student@lfs458-node-1a0a:~$ less ~/.kube/config
 
+    <output_omitted>
+```
 We will set the certificates as variables. You may want to double-check each parameter as you set it. Begin with setting
 the client-certificate-data key.
 
@@ -27,6 +28,7 @@ student@lfs458-node-1a0a:~$ echo $key
 <output_omitted>
 
 Finally set the auth variable with the certificate-authority-data key.
+
 student@lfs458-node-1a0a:~$ export auth=$(grep certificate-authority-data ~/.kube/config |cut -d " " -f 6)
 student@lfs458-node-1a0a:~$ echo $auth
 <output_omitted>
