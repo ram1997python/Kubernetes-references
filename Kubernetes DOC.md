@@ -9,3 +9,7 @@ https://blog.opskumu.com/kubernetes-ext-service.html
 ## Kubernetes Metrics
 
 https://blog.freshtracks.io/a-deep-dive-into-kubernetes-metrics-b190cc97f0f6
+
+##Best Practices For Microservices on Kubernetes
+
+https://piotrminkowski.com/2020/03/10/best-practices-for-microservices-on-kubernetes/
