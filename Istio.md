@@ -5,3 +5,7 @@ https://www.virtualthoughts.co.uk/2019/07/15/application-security-with-mutual-tl
 https://www.learncloudnative.com/p
 
 https://monzo.com/blog/controlling-outbound-traffic-from-kubernetes
+
+KeyCloak
+
+https://www.dangtrinh.com/2019/08/end-user-authentication-with-istio-and.html
