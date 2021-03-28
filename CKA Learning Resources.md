@@ -20,3 +20,7 @@ https://medium.com/faun/configuring-kubernetes-cluster-to-use-openid-connect-aut
 ## What Are the Hardest Parts of Kubernetes to Learn?
 
 https://logz.io/blog/what-are-the-hardest-parts-of-kubernetes-to-learn/
+
+## Visual presentation
+
+https://dev.to/aurelievache/series/6199
