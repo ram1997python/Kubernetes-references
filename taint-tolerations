@@ -1,0 +1,20 @@
+```
+
+# Taints and Tolerations
+apiVersion: v1
+kind: Pod
+metadata:
+  name: tolerant-pod
+spec:
+  tolerations:
+  - key: "key1"
+    operator: "Equal"
+    value: "value1"
+    effect: "NoSchedule"
+  containers:
+  - name: nginx-container
+    image: nginx:latest
+
+---
+
+```
