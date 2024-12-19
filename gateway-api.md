@@ -92,12 +92,14 @@ spec:
 **Key Fields**:
 
 **parentRefs**: Links to the web-gateway Gateway instance.
+
 **hostnames**: Defines the hostname (my.analytics.example.com) for routing.
 
 **rules:**
 
 Match /data:
 Routes traffic to the data Service on port 8000.
+
 Match /visualize:
 Routes traffic to the visualize Service on port 9000.
 
