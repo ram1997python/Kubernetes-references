@@ -120,7 +120,7 @@ spec:
         - containerPort: 8000
 
 ```
-**Purpose: **
+****Purpose: ****
 
 Defines a Pod serving the data backend.
 
@@ -136,7 +136,7 @@ ports:
 
 Specifies the container port (8000).
 
-5. Service for data Pod
+## 5. Service for data Pod
 ```
 apiVersion: v1
 kind: Service
@@ -152,14 +152,24 @@ spec:
   type: ClusterIP
 
 ```
-Purpose: Exposes the data Pod internally to the cluster.
+Purpose: 
+
+Exposes the data Pod internally to the cluster.
+
 Key Fields:
-selector: Links to Pods with the label app: data.
-ports: Maps Service port 8000 to Pod container port 8000.
+
+selector: 
+
+Links to Pods with the label app: data.
+
+ports: 
+
+Maps Service port 8000 to Pod container port 8000.
+
 type: Default type (ClusterIP), allowing internal cluster communication.
 
 
-6. Pod for visualize Service
+## 6. Pod for visualize Service
 
 ```
 apiVersion: v1
@@ -176,12 +186,19 @@ spec:
         - containerPort: 9000
 
 ```
-Purpose: Defines a Pod serving the visualize backend.
-Key Fields:
-labels: The app: visualize label is used to link the Pod to the corresponding Service.
-ports: Specifies the container port (9000).
+Purpose: 
 
-7. Service for visualize Pod
+Defines a Pod serving the visualize backend.
+Key Fields:
+
+labels: 
+
+The app: visualize label is used to link the Pod to the corresponding Service.
+ports: 
+
+Specifies the container port (9000).
+
+## 7. Service for visualize Pod
 
 ```
 apiVersion: v1
@@ -198,19 +215,30 @@ spec:
   type: ClusterIP
 
 ```
-Purpose: Exposes the visualize Pod internally to the cluster.
+Purpose: 
+Exposes the visualize Pod internally to the cluster.
 Key Fields:
-selector: Links to Pods with the label app: visualize.
-ports: Maps Service port 9000 to Pod container port 9000.
-type: Default type (ClusterIP), allowing internal cluster communication.
 
-Full Workflow Summary
+selector: 
+Links to Pods with the label app: visualize.
+ports:
+Maps Service port 9000 to Pod container port 9000.
+type: 
+Default type (ClusterIP), allowing internal cluster communication.
 
-Ingress Traffic: The Gateway listens for HTTP traffic on port 80 for the hostname my.analytics.example.com.
+## Full Workflow Summary
+
+Ingress Traffic: 
+
+The Gateway listens for HTTP traffic on port 80 for the hostname my.analytics.example.com.
+
 Routing:
+
 Requests with /data are routed to the data Service, which directs traffic to the data-pod on port 8000.
 Requests with /visualize are routed to the visualize Service, which directs traffic to the visualize-pod on port 9000.
+
 Separation of Concerns:
+
 Gateway handles external traffic.
 Services abstract the backend Pods and handle internal traffic.
 Pods provide the actual application functionality.
@@ -219,7 +247,7 @@ Pods provide the actual application functionality.
 
 
 
-Summary of Functionality
+## Summary of Functionality
 
 Traffic entering the cluster on my.analytics.example.com is handled by web-gateway:
 
