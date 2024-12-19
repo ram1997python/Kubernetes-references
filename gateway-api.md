@@ -41,8 +41,10 @@ spec:
           from: All
 
 ```
-Purpose: Defines a Gateway instance listening for HTTP traffic on port 80.
-Key Fields:
+**Purpose**: Defines a Gateway instance listening for HTTP traffic on port 80.
+
+**Key Fields:**
+
 gatewayClassName: Links to my-controller (defined in GatewayClass).
 listeners:
 protocol: Specifies HTTP as the traffic type.
