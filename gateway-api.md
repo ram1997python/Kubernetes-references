@@ -103,7 +103,7 @@ Routes traffic to the data Service on port 8000.
 Match /visualize:
 Routes traffic to the visualize Service on port 9000.
 
-4. Pod for data Service
+## 4. Pod for data Service
 
 ```
 apiVersion: v1
@@ -120,10 +120,18 @@ spec:
         - containerPort: 8000
 
 ```
-Purpose: Defines a Pod serving the data backend.
+Purpose: 
+
+Defines a Pod serving the data backend.
+
 Key Fields:
-labels: The app: data label is used to link the Pod to the corresponding Service.
-ports: Specifies the container port (8000).
+
+labels: 
+
+The app: data label is used to link the Pod to the corresponding Service.
+ports: 
+
+Specifies the container port (8000).
 
 5. Service for data Pod
 ```
