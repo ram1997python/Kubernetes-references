@@ -46,9 +46,13 @@ spec:
 **Key Fields:**
 
 gatewayClassName: Links to my-controller (defined in GatewayClass).
+
 listeners:
+
 protocol: Specifies HTTP as the traffic type.
+
 port: Listens on port 80.
+
 allowedRoutes: Allows routes from all namespaces.
 
 ## 3. HTTPRoute
