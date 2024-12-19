@@ -13,8 +13,12 @@ spec:
   controllerName: my.company.example.io/my-gateway-controller
 
 ```
-Purpose: Specifies the controller responsible for managing Gateways in the cluster.
-Key Fields:
+# Purpose: 
+
+  Specifies the controller responsible for managing Gateways in the cluster.
+
+# Key Fields:
+
 name: The name of the GatewayClass (my-controller).
 controllerName: Identifier for the custom Gateway controller.
 
