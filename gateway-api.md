@@ -1,7 +1,8 @@
-Explanation of the YAML Configuration
+## Explanation of the YAML Configuration
+
 This configuration defines a Gateway API setup using three resources: GatewayClass, Gateway, and HTTPRoute.
 
-1. GatewayClass
+## 1. GatewayClass
 
 ```
 kind: GatewayClass
@@ -17,7 +18,7 @@ Key Fields:
 name: The name of the GatewayClass (my-controller).
 controllerName: Identifier for the custom Gateway controller.
 
-2. Gateway
+## 2. Gateway
 
 ```
 kind: Gateway
@@ -43,7 +44,7 @@ protocol: Specifies HTTP as the traffic type.
 port: Listens on port 80.
 allowedRoutes: Allows routes from all namespaces.
 
-3. HTTPRoute
+## 3. HTTPRoute
 ```
 kind: HTTPRoute
 apiVersion: gateway.networking.k8s.io/v1beta1
