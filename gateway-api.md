@@ -20,6 +20,7 @@ spec:
 ## Key Fields:
 
 name: The name of the GatewayClass (my-controller).
+
 controllerName: Identifier for the custom Gateway controller.
 
 ## 2. Gateway
