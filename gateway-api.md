@@ -87,12 +87,15 @@ spec:
           port: 9000
 
 ```
-Purpose: Defines routing rules for HTTP traffic directed to specific application backends based on the path.
+**Purpose**: Defines routing rules for HTTP traffic directed to specific application backends based on the path.
 
-Key Fields:
-parentRefs: Links to the web-gateway Gateway instance.
-hostnames: Defines the hostname (my.analytics.example.com) for routing.
-rules:
+**Key Fields**:
+
+**parentRefs**: Links to the web-gateway Gateway instance.
+**hostnames**: Defines the hostname (my.analytics.example.com) for routing.
+
+**rules:**
+
 Match /data:
 Routes traffic to the data Service on port 8000.
 Match /visualize:
