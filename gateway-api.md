@@ -1,4 +1,4 @@
-## Explanation of the YAML Configuration
+# Explanation of the YAML Configuration
 
 This configuration defines a Gateway API setup using three resources: GatewayClass, Gateway, and HTTPRoute.
 
@@ -13,11 +13,11 @@ spec:
   controllerName: my.company.example.io/my-gateway-controller
 
 ```
-# Purpose: 
+## Purpose: 
 
   Specifies the controller responsible for managing Gateways in the cluster.
 
-# Key Fields:
+## Key Fields:
 
 name: The name of the GatewayClass (my-controller).
 controllerName: Identifier for the custom Gateway controller.
