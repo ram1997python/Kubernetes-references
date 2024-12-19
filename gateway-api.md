@@ -120,15 +120,18 @@ spec:
         - containerPort: 8000
 
 ```
-Purpose: 
+**Purpose: **
 
 Defines a Pod serving the data backend.
 
-Key Fields:
+**Key Fields:**
 
-labels: 
+****labels: ****
 
-The app: data label is used to link the Pod to the corresponding Service.
+The app: 
+
+data label is used to link the Pod to the corresponding Service.
+
 ports: 
 
 Specifies the container port (8000).
