@@ -1,14 +1,21 @@
 ## Install and setup Helm Package Manager
 
-```
-wget https://storage.googleapis.com/kubernetes-helm/helm-v2.12.2-linux-amd64.tar.gz
-tar -zxvf helm-v2.12.2-linux-amd64.tar.gz
-sudo mv linux-amd64/helm /usr/local/bin/helm
-kubectl -n kube-system create sa tiller
-kubectl create clusterrolebinding tiller --clusterrole cluster-admin --serviceaccount=kube-system:tiller
-helm init --service-account tiller
+## Step 1: Download the Helm Installation Script
+
+Helm provides a script to easily install the latest version:
 
 ```
-https://daemonza.github.io/2017/02/20/using-helm-to-deploy-to-kubernetes/
+curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
+```
+## Step 2: Verify the Installation
+
+Check the installed Helm version to confirm it's working:
+
+```
+helm version
+```
+
+
 
 https://opensource.com/article/20/5/helm-charts
