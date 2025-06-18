@@ -1,6 +1,8 @@
 ## Create a Service Account
-vi lab-user.yaml 
 
+```
+vi lab-user.yaml 
+```
 ```
 apiVersion: v1
 kind: ServiceAccount
@@ -85,6 +87,40 @@ TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
 curl -H "Authorization: Bearer $TOKEN" https://kubernetes/api/v1/namespaces/default/pods/ --insecure
 ```
 you will see forbidden error
+
+```
+vi pod.yaml
+```
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  name: lab-sa-pod
+spec:
+  containers:
+  - name: abc
+    image: nginx
+  serviceAccountName: lab-user
+```
+```
+kubectl create -f pod.yaml
+
+```
+```
+kubectl exec -it lab-sa-pod -- bash
+```
+```
+TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
+```
+```
+curl -H "Authorization: Bearer $TOKEN" https://kubernetes/api/v1/namespaces/default/pods/ --insecure
+```
+```
+curl -H "Authorization: Bearer $TOKEN" https://kubernetes/api/v1/namespaces/kube-system/pods/ --insecure
+```
+
+
+
 
 
 
