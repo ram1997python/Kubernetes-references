@@ -20,6 +20,9 @@ kubectl get pods -n test
 ```
 Centos
 sudo yum install etcd -y
+
+### https://snapcraft.io/install/etcd/rhel  -- use snap
+
 Ubuntu
 sudo apt-get install etcd-client
 ```
