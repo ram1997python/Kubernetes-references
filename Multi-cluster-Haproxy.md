@@ -155,5 +155,5 @@ worker2   Ready      <none>          XXm     v1.xx.x
 ---
 
 
-Let me know if you want this broken into multiple files (`haproxy.cfg`, `setup.sh`, etc.) or published as a GitHub repo template.
+
 ```
