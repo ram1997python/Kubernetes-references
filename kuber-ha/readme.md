@@ -146,6 +146,51 @@ worker2   Ready      <none>          XXm     v1.xx.x
 
 ---
 
+## How to run this program.
+
+* Add Username and password in terraform.tfvars
+* ![image](https://github.com/user-attachments/assets/72ccf1e9-b475-4c37-a84a-c0101d1be99f)
+
+
+* Add resourse name in main.tf
+
+  ![image](https://github.com/user-attachments/assets/e16c2f07-5663-444a-be0d-de3ca71348fc)
+
+
+* Run az login to authenticate
+  
+  ```
+  az login
+  
+  ```
+  
+* Run terraform init
+
+  ```
+  terraform init
+  ```
+* Validate the terraform code
+  ```
+  terraform validate
+  ```
+* Run terraform Plan
+  ```
+  terraform plan
+  ```
+
+* Run Terraform apply
+  ```
+  terraform apply --auto-approve
+  ```
+
+----
+## How to login into cluster
+
+* ssh to 0 ip and switch to other nodes
+
+![image](https://github.com/user-attachments/assets/84d4a575-75f6-413d-b20d-407855600d98)
+
+
 ## 📚 Resources
 
 * [Kubeadm HA Guide](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/high-availability/)
