@@ -12,11 +12,11 @@ You need the following installed:
 
 Install kind:
 
-bash
+```
 curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.22.0/kind-linux-amd64
 chmod +x ./kind
 sudo mv ./kind /usr/local/bin/kind
-
+```
 
 ---
 
@@ -24,9 +24,10 @@ sudo mv ./kind /usr/local/bin/kind
 
 Create a cluster using default configuration:
 
-bash
+```
 kind create cluster --name my-cluster
 
+```
 
 You can also use a custom config file (e.g., with multiple nodes):
 
@@ -51,10 +52,10 @@ kind create cluster --name my-cluster --config kind-config.yaml
 
 ## ✅ Step 3: Verify the Cluster
 
-bash
+```
 kubectl cluster-info --context kind-my-cluster
 kubectl get nodes
-
+```
 
 Expected output:
 
@@ -68,9 +69,10 @@ my-cluster-worker          Ready    <none>          1m    v1.28.x
 
 ## ✅ Step 4: Deploy an App (Optional)
 
-bash
+```
 kubectl create deployment nginx --image=nginx
 kubectl expose deployment nginx --port=80 --type=NodePort
 kubectl get svc
 
+```
 
