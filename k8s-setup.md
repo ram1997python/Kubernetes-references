@@ -210,7 +210,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
  
   config.vm.box = BOX_NAME
   config.vm.provider :virtualbox do |vb|
-    vb.memory = 1500
+    vb.memory = 1800
     vb.cpus   = 2
   end
  
