@@ -254,3 +254,25 @@ kubeadm config images pull
 sudo kubeadm init   --pod-network-cidr=10.244.0.0/16   --apiserver-advertise-address=192.168.56.24   --control-plane-endpoint=master.dev.com
 
 ```
+
+## Run the following command.
+```
+# 1) Make sure firewalld is running (or skip if it’s already active)
+sudo systemctl enable --now firewalld
+
+# 2) Open the Kubernetes-API port (6443/TCP)
+sudo firewall-cmd --zone=public --add-port=6443/tcp --permanent
+
+# 3a) EITHER open one specific NodePort that Kubernetes chose, e.g. 31573/TCP
+sudo firewall-cmd --zone=public --add-port=31573/tcp --permanent
+
+# 3b) …OR open the whole NodePort range (30000-32767/TCP) in one shot
+sudo firewall-cmd --zone=public --add-port=30000-32767/tcp --permanent
+
+# 4) Reload the rules so they take effect
+sudo firewall-cmd --reload
+
+# 5) (Optional) Verify
+firewall-cmd --zone=public --list-ports
+
+```
