@@ -1,4 +1,4 @@
-Sure! Here’s a step-by-step guide to *set up a Kubernetes cluster using kind (Kubernetes IN Docker)*:
+Sure! Here’s a step-by-step guide to *set up a Kubernetes cluster using kind (Kubernetes IN Docker)*: ( Windows ) - Use git bash to download kind package
 
 ---
 
