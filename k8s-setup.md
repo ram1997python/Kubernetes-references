@@ -1,4 +1,4 @@
-# Kubernetes 3‑Node Lab on Vagrant & VirtualBox
+# Kubernetes 3‑Node Lab on Vagrant & VirtualBox ( Windows 11 )
 
 This project spins up a **single‑master, two‑worker Kubernetes cluster** on your local machine using **Vagrant** and **VirtualBox**, without any extra Vagrant plugins (no *landrush*, no *hostmanager*). Each VM is provisioned automatically with containerd, runc, CNI plugins, and Kubernetes (`kubelet`, `kubeadm`, `kubectl`).
 
