@@ -248,7 +248,7 @@ end
 ```
 
 ```
-kubeadm config images pull
+sudo kubeadm config images pull
 ```
 ```
 sudo kubeadm init   --pod-network-cidr=10.244.0.0/16   --apiserver-advertise-address=192.168.56.24   --control-plane-endpoint=master.dev.com
@@ -279,6 +279,11 @@ firewall-cmd --zone=public --list-ports
 ```
 wget https://raw.githubusercontent.com/flannel-io/flannel/master/Documentation/kube-flannel.yml
 kubectl apply -f kube-flannel.yml
+```
+## Stop running swap on all nodes
+
+```
+sudo swapoff -a
 ```
 
 ```
