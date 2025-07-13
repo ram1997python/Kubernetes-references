@@ -276,3 +276,7 @@ sudo firewall-cmd --reload
 firewall-cmd --zone=public --list-ports
 
 ```
+```
+wget https://raw.githubusercontent.com/flannel-io/flannel/master/Documentation/kube-flannel.yml
+kubectl apply -f kube-flannel.yml
+```
