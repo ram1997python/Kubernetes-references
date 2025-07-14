@@ -25,6 +25,9 @@ This project spins up a **single‑master, two‑worker Kubernetes cluster** on 
 $ git clone https://github.com/deenamanick/Kubernetes-references.git
 $ cd Kubernetes-references
 
+$ mkdir k8s
+$ refer below Vagrantfile
+
 # 2. Bring up the cluster (first run ≈ 10–15 min, depends on bandwidth)
 $ vagrant up
 
