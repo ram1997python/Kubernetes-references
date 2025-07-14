@@ -22,8 +22,8 @@ This project spins up a **single‑master, two‑worker Kubernetes cluster** on 
 
 ```bash
 # 1. Clone this repo
-$ git clone https://github.com/your‑org/k8s‑vagrant‑lab.git
-$ cd k8s‑vagrant‑lab
+$ git clone https://github.com/deenamanick/Kubernetes-references.git
+$ cd Kubernetes-references
 
 # 2. Bring up the cluster (first run ≈ 10–15 min, depends on bandwidth)
 $ vagrant up
