@@ -1,7 +1,4 @@
 
----
-
-````markdown
 # 📦 Jeevi Academy – Static Website Deployment on Kubernetes with NGINX Ingress
 
 This project demonstrates how to deploy a static website for **Jeevi Academy** using Kubernetes, with NGINX Ingress and path-based routing.
@@ -27,6 +24,7 @@ Install Ingress controller:
 
 ```bash
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.1.1/deploy/static/provider/cloud/deploy.yaml
+
 ````
 
 For **local setups (like Vagrant)**, change the service to `NodePort`:
@@ -241,9 +239,4 @@ Ideal for students learning Ingress, services, and containerized website deploym
 
 Happy Learning! 🚀
 
-```
 
----
-
-Would you like me to generate a ZIP file containing this `README.md`, plus sample `index.html`, and YAMLs?
-```
