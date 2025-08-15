@@ -170,7 +170,7 @@ def submit():
                     "yours": q['options'][submitted]
                 })
 
-    return render_template("result.html", score=score, total=total, incorrect_answers=incorrect_answers)
+    return render_template("results.html", score=score, total=total, incorrect_answers=incorrect_answers)
 
 if __name__ == '__main__':
     app.run(debug=True)
