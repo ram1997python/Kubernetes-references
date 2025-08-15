@@ -14,42 +14,66 @@
             font-size: 1.3em;
             margin-bottom: 20px;
         }
-        .incorrect-answers {
+        .certificate {
+            border: 5px solid #4CAF50;
+            padding: 30px;
+            text-align: center;
+            background: #fff;
+            border-radius: 10px;
             margin-top: 20px;
-            padding: 20px;
-            border: 1px solid #f0ad4e;
-            border-radius: 8px;
-            background-color: #fef0e0;
+            box-shadow: 0px 0px 15px rgba(0,0,0,0.2);
         }
-        .incorrect-answers h2 {
-            color: #d9534f;
+        .certificate img {
+            max-width: 150px;
             margin-bottom: 15px;
         }
-        .incorrect-answers p {
-            margin-bottom: 10px;
-            line-height: 1.6;
+        .certificate h2 {
+            margin-top: 10px;
+            font-size: 28px;
+            color: #4CAF50;
         }
-        .correct-answer {
-            color: green;
-            font-weight: bold;
-            display: block;
+        .certificate p {
+            font-size: 18px;
+            color: #333;
         }
-        .your-answer {
-            color: red;
-            font-weight: bold;
-            display: block;
-        }
-        a {
-            display: inline-block;
+        .retry-container {
+            text-align: center;
             margin-top: 20px;
+        }
+        .retry-container a {
+            display: inline-block;
             text-decoration: none;
             padding: 10px 15px;
             background-color: #007bff;
             color: white;
             border-radius: 5px;
         }
-        a:hover {
+        .retry-container a:hover {
             background-color: #0056b3;
+        }
+        .share-btn {
+            display: inline-block;
+            background-color: #0A66C2;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            text-decoration: none;
+            margin-top: 15px;
+        }
+        .share-btn:hover {
+            background-color: #084182;
+        }
+        .download-btn {
+            display: inline-block;
+            background-color: #28a745;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            text-decoration: none;
+            margin-top: 15px;
+        }
+        .download-btn:hover {
+            background-color: #1e7e34;
         }
     </style>
 </head>
@@ -60,6 +84,25 @@
     <div class="congrats">
         Your Score: {{ score }} / {{ total }}
     </div>
+
+    {% if score >= (total * 0.7) %}
+        <div class="certificate" id="certificate">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="Academy Logo">
+            <h2>Certificate of Achievement</h2>
+            <p>This is to certify that you have <strong>successfully passed</strong> the Kubernetes Quiz.</p>
+            <p><strong>Score:</strong> {{ score }} / {{ total }}</p>
+            <p>Issued by Jeevi Academy</p>
+
+            <!-- Download Certificate -->
+            <a href="#" class="download-btn" onclick="downloadCertificate()">Download Certificate</a>
+
+            <!-- LinkedIn Share -->
+            <a class="share-btn" target="_blank" 
+               href="https://www.linkedin.com/sharing/share-offsite/?url=https://jeeviacademy.com">
+                Share on LinkedIn
+            </a>
+        </div>
+    {% endif %}
 
     {% if incorrect_answers %}
         <div class="incorrect-answers">
@@ -72,11 +115,25 @@
                 </p>
             {% endfor %}
         </div>
-    {% else %}
-        <div class="congrats">🎉 Perfect Score! Well done! 🎉</div>
     {% endif %}
 
-    <a href="/">Try Again</a>
+    <div class="retry-container">
+        <a href="/">Try Again</a>
+    </div>
 </div>
+
+<!-- html2canvas script -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+function downloadCertificate() {
+    const certDiv = document.getElementById('certificate');
+    html2canvas(certDiv).then(canvas => {
+        const link = document.createElement('a');
+        link.download = 'certificate.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+    });
+}
+</script>
 </body>
 </html>
