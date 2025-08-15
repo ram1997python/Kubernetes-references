@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Quiz Results</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .congrats {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 1.3em;
+            margin-bottom: 20px;
+        }
+        .incorrect-answers {
+            margin-top: 20px;
+            padding: 20px;
+            border: 1px solid #f0ad4e;
+            border-radius: 8px;
+            background-color: #fef0e0;
+        }
+        .incorrect-answers h2 {
+            color: #d9534f;
+            margin-bottom: 15px;
+        }
+        .incorrect-answers p {
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+        .correct-answer {
+            color: green;
+            font-weight: bold;
+            display: block;
+        }
+        .your-answer {
+            color: red;
+            font-weight: bold;
+            display: block;
+        }
+        a {
+            display: inline-block;
+            margin-top: 20px;
+            text-decoration: none;
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border-radius: 5px;
+        }
+        a:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+<div class="quiz-container">
+    <h1>Quiz Results</h1>
+
+    <div class="congrats">
+        Your Score: {{ score }} / {{ total }}
+    </div>
+
+    {% if incorrect_answers %}
+        <div class="incorrect-answers">
+            <h2>Incorrect Answers</h2>
+            {% for ans in incorrect_answers %}
+                <p>
+                    <strong>Question:</strong> {{ ans.question }}<br>
+                    <span class="correct-answer">✅ Correct Answer: {{ ans.correct }}</span>
+                    <span class="your-answer">❌ Your Answer: {{ ans.yours }}</span>
+                </p>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="congrats">🎉 Perfect Score! Well done! 🎉</div>
+    {% endif %}
+
+    <a href="/">Try Again</a>
+</div>
+</body>
+</html>
