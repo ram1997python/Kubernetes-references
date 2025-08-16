@@ -631,6 +631,662 @@ These logs guide developers when something goes wrong.
 
 ---
 
+Perfect 👍 Now let’s continue with **Module 4: Storage & Scheduling**.
+This module covers *storage management, scheduling strategies, and special workload configurations*.
+
+---
+
+### 29. Storage Management
+
+**Question:** How does Kubernetes handle storage management?
+
+**Answer:**
+Kubernetes abstracts storage the same way it abstracts compute. It allows pods to use **persistent storage** independent of the underlying hardware (local disk, NFS, cloud storage).
+
+* **Persistent Volumes (PV):** Define storage resources in the cluster.
+* **Persistent Volume Claims (PVC):** Pods request storage through claims.
+* **Storage Classes:** Automate dynamic provisioning of volumes.
+
+**Example:**
+A developer requests a 10Gi volume in a PVC → Kubernetes binds it to an available PV or creates one dynamically.
+
+---
+
+### 30. Creating Persistent Volume (PV)
+
+**Question:** What is a Persistent Volume, and how do you create one?
+
+**Answer:**
+A **Persistent Volume (PV)** is a piece of storage in the cluster provisioned by an admin. It exists independently of pods.
+
+**Example (YAML):**
+
+```yaml
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-example
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /mnt/data
+```
+
+This PV provides **5Gi storage** on the node’s `/mnt/data` directory.
+
+---
+
+### 31. Persistent Volume Claim (PVC)
+
+**Question:** How does a Persistent Volume Claim work?
+
+**Answer:**
+A **PVC** is a user’s request for storage. Kubernetes finds a PV that matches the request and binds it.
+
+**Example (YAML):**
+
+```yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-example
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+```
+
+If a PV with ≥ 2Gi exists, Kubernetes binds it to this claim. The pod then mounts the PVC.
+
+---
+
+### 32. Manual Scheduling
+
+**Question:** How can you manually schedule a pod to a specific node?
+
+**Answer:**
+You can use the **`nodeName`** field in the Pod spec.
+
+**Example (YAML):**
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: manual-pod
+spec:
+  nodeName: worker-node1
+  containers:
+  - name: nginx
+    image: nginx
+```
+
+This forces the pod to run on `worker-node1`.
+
+---
+
+### 33. Labels & Selectors
+
+**Question:** What are Labels and Selectors in Kubernetes?
+
+**Answer:**
+
+* **Labels:** Key-value pairs attached to objects (e.g., `app=nginx`).
+* **Selectors:** Used to filter resources by label.
+
+**Example:**
+A Deployment labels its pods with `app=nginx`. A Service uses a selector `app=nginx` to route traffic only to those pods.
+
+```yaml
+selector:
+  matchLabels:
+    app: nginx
+```
+
+---
+
+### 34. Taints & Tolerations
+
+**Question:** What are Taints and Tolerations in Kubernetes?
+
+**Answer:**
+
+* **Taint (Node property):** Marks a node to repel pods.
+* **Toleration (Pod property):** Allows a pod to be scheduled on tainted nodes.
+
+This ensures only specific pods run on certain nodes (e.g., GPU workloads).
+
+**Example:**
+
+```bash
+kubectl taint nodes node1 gpu=true:NoSchedule
+```
+
+Only pods with a matching toleration can run on `node1`.
+
+---
+
+### 35. Node Selector
+
+**Question:** How does NodeSelector work?
+
+**Answer:**
+NodeSelector is the simplest way to constrain pods to nodes with specific labels.
+
+**Example (YAML):**
+
+```yaml
+spec:
+  nodeSelector:
+    disktype: ssd
+```
+
+This pod will only schedule on nodes labeled `disktype=ssd`.
+
+---
+
+### 36. Node Affinity
+
+**Question:** What is Node Affinity, and how is it different from NodeSelector?
+
+**Answer:**
+
+* **NodeSelector:** Basic equality match (`key=value`).
+* **Node Affinity:** More expressive; allows `In`, `NotIn`, `Exists` operators and **preferred** vs **required** rules.
+
+**Example (YAML):**
+
+```yaml
+affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: disktype
+          operator: In
+          values:
+          - ssd
+```
+
+---
+
+### 37. Static Pods
+
+**Question:** What is a Static Pod?
+
+**Answer:**
+A **Static Pod** is created directly by the **kubelet** on a node, not by the API server.
+
+* Defined in `/etc/kubernetes/manifests/`
+* Always tied to a specific node
+* Often used for critical system pods (like kube-apiserver itself)
+
+**Example:** If kube-apiserver dies, kubelet automatically recreates it because it’s defined as a static pod.
+
+---
+
+### 38. Multiple Schedulers
+
+**Question:** Can Kubernetes run multiple schedulers?
+
+**Answer:**
+Yes. Kubernetes supports running multiple schedulers. You can define which scheduler a pod should use in the Pod spec.
+
+**Example (YAML):**
+
+```yaml
+spec:
+  schedulerName: custom-scheduler
+```
+
+---
+
+### 39. Configure Kubernetes Custom Scheduler
+
+**Question:** How do you configure a custom scheduler in Kubernetes?
+
+**Answer:**
+Steps:
+
+1. Write your custom scheduler logic (e.g., in Go).
+2. Run it as a Pod in the cluster.
+3. Assign pods to it using `schedulerName`.
+
+**Use Case:** Workloads with special requirements (e.g., GPU-intensive jobs).
+
+---
+
+### 40. CronJobs
+
+**Question:** What is a CronJob in Kubernetes, and when is it used?
+
+**Answer:**
+A **CronJob** schedules jobs to run periodically (like Linux `cron`).
+
+**Example (YAML):**
+
+```yaml
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: hello-cron
+spec:
+  schedule: "*/5 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: hello
+            image: busybox
+            command: ["echo", "Hello from CronJob!"]
+          restartPolicy: OnFailure
+```
+
+### 41. Resource Allocation
+
+**Question:** What is Resource Allocation in Kubernetes?
+
+**Answer:**
+Resource allocation means **defining CPU and memory requests** for pods so that the scheduler can place them properly.
+
+* **Request:** Minimum resource needed. Used by scheduler.
+* **Limit:** Maximum resource pod can use.
+
+**Example (YAML):**
+
+```yaml
+resources:
+  requests:
+    cpu: "200m"
+    memory: "256Mi"
+  limits:
+    cpu: "500m"
+    memory: "512Mi"
+```
+
+This pod *requests* 200 millicores & 256Mi memory, but can use up to 500m CPU & 512Mi.
+
+---
+
+### 42. Resource Limitation
+
+**Question:** Why are Resource Limits important?
+
+**Answer:**
+Without limits, a single pod could **consume all node resources**, starving others.
+Limits enforce fairness and cluster stability.
+
+**Example:**
+
+* Pod A hogs CPU = Pod B slows down.
+* With limits → Pod A is throttled to its quota.
+
+---
+
+### 43. HPA (Horizontal Pod Autoscaler)
+
+**Question:** What is an HPA in Kubernetes?
+
+**Answer:**
+The **Horizontal Pod Autoscaler** automatically scales the number of pod replicas based on resource usage (CPU, memory, or custom metrics).
+
+**Example (Command):**
+
+```bash
+kubectl autoscale deployment nginx --cpu-percent=50 --min=2 --max=10
+```
+
+If CPU usage > 50%, HPA increases replicas.
+
+---
+
+### 44. ClusterRole
+
+**Question:** What is a ClusterRole in Kubernetes?
+
+**Answer:**
+A **ClusterRole** defines permissions at the **cluster level**, not just a namespace.
+
+Examples:
+
+* View pods across all namespaces
+* Manage nodes
+
+**Example (YAML):**
+
+```yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: pod-reader
+rules:
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "list"]
+```
+
+---
+
+### 45. ClusterRoleBinding
+
+**Question:** What is a ClusterRoleBinding?
+
+**Answer:**
+A **ClusterRoleBinding** grants a ClusterRole to a user, group, or service account.
+
+**Example (YAML):**
+
+```yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: read-pods-global
+subjects:
+- kind: User
+  name: jane
+roleRef:
+  kind: ClusterRole
+  name: pod-reader
+  apiGroup: rbac.authorization.k8s.io
+```
+
+Here, user `jane` can read pods in **all namespaces**.
+
+---
+
+### 46. RBAC (Role-Based Access Control)
+
+**Question:** What is RBAC, and why is it used in Kubernetes?
+
+**Answer:**
+**RBAC** controls who can do what in the cluster. It defines:
+
+* **Role/ClusterRole:** What actions are allowed.
+* **RoleBinding/ClusterRoleBinding:** Who gets those permissions.
+
+It enhances **security** by ensuring users and apps only have the permissions they need.
+
+---
+
+### 47. Role & RoleBinding
+
+**Question:** How do Role and RoleBinding differ from ClusterRole and ClusterRoleBinding?
+
+**Answer:**
+
+* **Role:** Permissions limited to one namespace.
+* **RoleBinding:** Grants that Role to users/groups in that namespace.
+* **ClusterRole:** Cluster-wide permissions.
+* **ClusterRoleBinding:** Cluster-wide assignment.
+
+**Example (Role YAML):**
+
+```yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: dev
+  name: pod-reader
+rules:
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "list"]
+```
+
+---
+
+### 48. Security Context
+
+**Question:** What is a Security Context in Kubernetes?
+
+**Answer:**
+A **Security Context** defines security settings for a pod or container, such as:
+
+* Run as specific user/group ID
+* Linux capabilities
+* Privilege settings
+
+**Example (YAML):**
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: security-pod
+spec:
+  containers:
+  - name: app
+    image: nginx
+    securityContext:
+      runAsUser: 1000
+      readOnlyRootFilesystem: true
+```
+
+Here, the container runs as **user 1000** and has a **read-only filesystem**.
+
+---
+
+Perfect 👍 Now we’re entering **Module 6: Networking & Ingress**.
+This module is about how pods talk to each other, how Kubernetes secures networking, and how apps are exposed externally.
+
+---
+
+### 49. Network Namespaces
+
+**Question:** What is a Network Namespace in Kubernetes?
+
+**Answer:**
+A **Network Namespace** is a Linux kernel feature that provides an isolated network environment for containers. Each pod gets its **own network namespace**, but containers inside the same pod share it.
+
+This means:
+
+* Pods have unique IPs.
+* Containers inside a pod can talk via `localhost`.
+
+**Example:**
+Two containers in the same pod (app + sidecar) can talk on `localhost:8080`.
+
+---
+
+### 50. Key Features of Kubernetes Networking
+
+**Question:** What are the key features of Kubernetes networking?
+
+**Answer:**
+
+1. Every pod has its **own IP address**.
+2. All pods in a cluster can talk to each other without NAT.
+3. Containers inside the same pod share networking.
+4. Services provide stable endpoints for pods.
+
+**Example:**
+Pod A (10.0.0.5) can directly connect to Pod B (10.0.0.8) without special routing.
+
+---
+
+### 51. Namespace Isolation in Networking
+
+**Question:** How does Kubernetes isolate workloads using namespaces?
+
+**Answer:**
+Namespaces logically separate resources (pods, services, configs). By default, networking is open between namespaces, but **NetworkPolicies** can enforce isolation.
+
+**Example:**
+
+* `dev` namespace pods cannot reach `prod` namespace pods if a NetworkPolicy is applied.
+
+---
+
+### 52. Understanding Pod Networking
+
+**Question:** How do pods communicate inside a cluster?
+
+**Answer:**
+
+* Each pod gets an IP from the cluster’s **CNI plugin** (Flannel, Calico, Weave).
+* Pods can talk to each other directly.
+* Services + kube-proxy route traffic when pod IPs change.
+
+**Example:**
+`curl http://10.0.0.12:80` → connects directly to another pod.
+
+---
+
+### 53. Network Policy
+
+**Question:** What is a Network Policy, and why is it important?
+
+**Answer:**
+A **Network Policy** controls which pods can communicate with each other (like a firewall for pods).
+
+By default: **all pods can talk to all pods**.
+With policies: you can restrict traffic.
+
+**Example (YAML):** Allow traffic only from pods with label `role=frontend` to `role=db`.
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: db-policy
+spec:
+  podSelector:
+    matchLabels:
+      role: db
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          role: frontend
+```
+
+---
+
+### 54. Docker Network Model
+
+**Question:** How does Docker networking relate to Kubernetes?
+
+**Answer:**
+
+* **Docker:** Provides `bridge`, `host`, `overlay` networks.
+* **Kubernetes:** Uses CNI plugins instead of Docker’s default networking.
+
+Kubernetes networking is more advanced since it ensures pod-to-pod communication across nodes.
+
+**Example:**
+
+* Docker container gets `172.17.0.2`.
+* Kubernetes pod gets `10.244.0.2`.
+  But both rely on **network namespaces** underneath.
+
+---
+
+### 55. Kubernetes Ingress
+
+**Question:** What is an Ingress in Kubernetes?
+
+**Answer:**
+Ingress manages **HTTP/HTTPS access** to services inside the cluster.
+It works with an **Ingress Controller** (like NGINX, Traefik).
+
+Benefits:
+
+* Host-based routing (`app1.example.com`, `app2.example.com`).
+* Path-based routing (`/api → backend`, `/ui → frontend`).
+* TLS termination.
+
+**Example (YAML):**
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: app-ingress
+spec:
+  rules:
+  - host: myapp.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: myapp-service
+            port:
+              number: 80
+```
+
+---
+
+### 56. Kubernetes Gateway API
+
+**Question:** What is the Kubernetes Gateway API?
+
+**Answer:**
+The **Gateway API** is the next-generation alternative to Ingress.
+It provides:
+
+* More flexibility (supports TCP, UDP, HTTP).
+* Better separation of roles (infra team manages gateways, app team manages routes).
+* Standard API across vendors.
+
+**Example Use Case:** Cloud providers (AWS, GCP, Azure) are adopting Gateway API for traffic management.
+
+---
+
+### 57. Ingress vs Gateway API
+
+**Question:** How does Ingress differ from the Gateway API?
+
+**Answer:**
+
+* **Ingress:** Focused on HTTP/HTTPS only. Limited flexibility.
+* **Gateway API:** Supports multiple protocols (TCP, UDP, TLS, HTTP). More extensible.
+
+**Analogy:**
+Ingress = Simple “main gate.”
+Gateway API = Full-featured “security checkpoint” with lanes for cars, trucks, pedestrians.
+
+---
+
+### 58. Demanding Scenario (Networking Challenge)
+
+**Question:** Imagine you have a frontend in `namespace=dev` and a backend in `namespace=prod`. How would you secure communication so only the frontend can reach the backend?
+
+**Answer:**
+
+1. Create a **NetworkPolicy** in `prod` that only allows traffic from pods in `dev`.
+2. Optionally, use **Ingress + TLS** to secure external communication.
+3. Ensure backend service is not exposed publicly.
+
+**Example (Policy YAML):**
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: backend-allow-dev
+  namespace: prod
+spec:
+  podSelector:
+    matchLabels:
+      app: backend
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: dev
+```
+
+
+
+
 
 
 
