@@ -9,9 +9,10 @@ WORKDIR /app
 
 # Copy all files
 COPY . /app/
+COPY requirements.txt .
 
 # Install Flask
-RUN pip install --no-cache-dir Flask
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Expose the app port
 EXPOSE 5000
