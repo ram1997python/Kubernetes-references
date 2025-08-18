@@ -3,136 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <title>Quiz Results</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <style>
-        .congrats {
-            background-color: #d4edda;
-            color: #155724;
-            padding: 20px;
-            border-radius: 8px;
-            text-align: center;
-            font-size: 1.3em;
-            margin-bottom: 20px;
-        }
-        .certificate {
-            border: 5px solid #4CAF50;
-            padding: 30px;
-            text-align: center;
-            background: #fff;
-            border-radius: 10px;
-            margin-top: 20px;
-            box-shadow: 0px 0px 15px rgba(0,0,0,0.2);
-        }
-        .certificate img {
-            max-width: 150px;
-            margin-bottom: 15px;
-        }
-        .certificate h2 {
-            margin-top: 10px;
-            font-size: 28px;
-            color: #4CAF50;
-        }
-        .certificate p {
-            font-size: 18px;
-            color: #333;
-        }
-        .retry-container {
-            text-align: center;
-            margin-top: 20px;
-        }
-        .retry-container a {
-            display: inline-block;
-            text-decoration: none;
-            padding: 10px 15px;
-            background-color: #007bff;
-            color: white;
-            border-radius: 5px;
-        }
-        .retry-container a:hover {
-            background-color: #0056b3;
-        }
-        .share-btn {
-            display: inline-block;
-            background-color: #0A66C2;
-            color: white;
-            padding: 10px 15px;
-            border-radius: 5px;
-            text-decoration: none;
-            margin-top: 15px;
-        }
-        .share-btn:hover {
-            background-color: #084182;
-        }
-        .download-btn {
-            display: inline-block;
-            background-color: #28a745;
-            color: white;
-            padding: 10px 15px;
-            border-radius: 5px;
-            text-decoration: none;
-            margin-top: 15px;
-        }
-        .download-btn:hover {
-            background-color: #1e7e34;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v=5) }}">
 </head>
 <body>
-<div class="quiz-container">
-    <h1>Quiz Results</h1>
+<div class="quiz-container wide">
+    <h1 style="text-align: center;">Quiz Results</h1>
 
     <div class="congrats">
         Your Score: {{ score }} / {{ total }}
+        {% if score >= (total * 0.7) %}
+            – Congratulations, you qualified for a certificate!
+        {% else %}
+            – Keep practicing to earn the certificate.
+        {% endif %}
     </div>
 
     {% if score >= (total * 0.7) %}
-        <div class="certificate" id="certificate">
-            <img src="{{ url_for('static', filename='logo.png') }}" alt="Academy Logo">
-            <h2>Certificate of Achievement</h2>
-            <p>This is to certify that you have <strong>successfully passed</strong> the Kubernetes Quiz.</p>
-            <p><strong>Score:</strong> {{ score }} / {{ total }}</p>
-            <p>Issued by Jeevi Academy</p>
-
-            <!-- Download Certificate -->
-            <a href="#" class="download-btn" onclick="downloadCertificate()">Download Certificate</a>
-
-            <!-- LinkedIn Share -->
-            <a class="share-btn" target="_blank" 
-               href="https://www.linkedin.com/sharing/share-offsite/?url=https://jeeviacademy.com">
-                Share on LinkedIn
-            </a>
-        </div>
-    {% endif %}
+  <div class="cert-wrapper">
+    <img
+      id="certificate-img"
+      class="cert-img"
+      src="{{ url_for('certificate_image') }}?name={{ name|urlencode }}&date={{ date_str }}"
+      alt="Certificate preview">
+    <div class="actions">
+      <a class="download-btn"
+         href="{{ url_for('certificate_image') }}?name={{ name|urlencode }}&date={{ date_str }}&download=1">
+         Download PNG
+      </a>
+      <a class="share-btn"
+         href="{{ url_for('certificate_pdf') }}?name={{ name|urlencode }}&date={{ date_str }}">
+         Download PDF
+      </a>
+    </div>
+  </div>
+{% endif %}
 
     {% if incorrect_answers %}
-        <div class="incorrect-answers">
-            <h2>Incorrect Answers</h2>
-            {% for ans in incorrect_answers %}
-                <p>
-                    <strong>Question:</strong> {{ ans.question }}<br>
-                    <span class="correct-answer">✅ Correct Answer: {{ ans.correct }}</span>
-                    <span class="your-answer">❌ Your Answer: {{ ans.yours }}</span>
-                </p>
-            {% endfor %}
-        </div>
+      <div class="answers">
+        <h2>Incorrect Answers</h2>
+        {% for ans in incorrect_answers %}
+          <p>
+            <strong>Question:</strong> {{ ans.question }}<br>
+            <span>✅ Correct Answer: {{ ans.correct }}</span><br>
+            <span>❌ Your Answer: {{ ans.yours }}</span>
+          </p>
+        {% endfor %}
+      </div>
     {% endif %}
 
-    <div class="retry-container">
-        <a href="/">Try Again</a>
+    <div class="actions" style="margin-top: 24px;">
+        <a class="primary" href="{{ url_for('capture_name') }}">Try Again</a>
     </div>
 </div>
 
-<!-- html2canvas script -->
+<!-- html2canvas for image export -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
 function downloadCertificate() {
-    const certDiv = document.getElementById('certificate');
-    html2canvas(certDiv).then(canvas => {
-        const link = document.createElement('a');
-        link.download = 'certificate.png';
-        link.href = canvas.toDataURL('image/png');
-        link.click();
-    });
+  const certDiv = document.getElementById('certificate');
+  html2canvas(certDiv, {scale: 2}).then(canvas => {
+      const link = document.createElement('a');
+      link.download = 'certificate.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+  });
 }
 </script>
 </body>

@@ -1,10 +1,44 @@
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, redirect, url_for, session, make_response
+from datetime import datetime
+from io import BytesIO
+from PIL import Image, ImageDraw, ImageFont
+import os
 
+# --- App setup ---
 app = Flask(__name__)
+app.secret_key = os.getenv("SECRET_KEY", "change-me-please")
 
-# Sample questions for the Kubernetes quiz    
+# --- Paths (deterministic, no system fallbacks) ---
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+STATIC_DIR = os.path.join(BASE_DIR, "static")
+FONT_DIR = os.path.join(STATIC_DIR, "fonts")
+BG_PATH = os.path.join(STATIC_DIR, "certificate_bg.png")
+
+# Use your exact bundled font filenames
+FONT_BOLD_PATH = os.path.join(FONT_DIR, "DejaVuSans-Bold.ttf")
+FONT_REG_PATH  = os.path.join(FONT_DIR, "DejaVuSans.ttf")
+
+def load_font(path: str, size: int) -> ImageFont.FreeTypeFont:
+    if not os.path.exists(path):
+        raise RuntimeError(f"Font not found: {path}. Did you copy it into static/fonts/?")
+    return ImageFont.truetype(path, size=size)
+
+def fit_font(draw, text: str, font_path: str,
+             max_width_px: int, max_pt: int = 140, min_pt: int = 60, step: int = 2):
+    """
+    Shrink-to-fit text into max_width_px, using the same TTF for consistent metrics
+    across host and Docker.
+    """
+    text = text.strip()
+    for pt in range(max_pt, min_pt - 1, -step):
+        f = load_font(font_path, pt)
+        # textlength is precise for width; textbbox also works
+        if draw.textlength(text, font=f) <= max_width_px:
+            return f
+    return load_font(font_path, min_pt)
+
+# ======== Quiz questions ========
 QUESTIONS = [
-    # ==== BASICS ====
     {"id": 1, "question": "What is the smallest deployable unit in Kubernetes?", "options": ["Pod", "Container", "Deployment", "ReplicaSet"], "answer": 0},
     {"id": 2, "question": "Kubernetes was originally developed by Google.", "options": ["True", "False"], "answer": 0},
     # {"id": 3, "question": "Which component is the Kubernetes master node's brain?", "options": ["Kubelet", "Kube-proxy", "API Server", "Scheduler"], "answer": 2},
@@ -144,15 +178,66 @@ QUESTIONS = [
     # {"id": 98, "question": "Backups of etcd should be encrypted.", "options": ["True", "False"], "answer": 0},
     # {"id": 99, "question": "A restore from backup always requires the cluster to be restarted.", "options": ["True", "False"], "answer": 1},
     # {"id": 100, "question": "Disaster recovery planning is not necessary for Kubernetes clusters.", "options": ["True", "False"], "answer": 1}
-    # ==== (and continue until id 100 with similar pattern) ====
+   
 ]
 
-@app.route('/')
-def index():
+# ======== Certificate rendering ========
+def build_certificate_image(name: str, date_str: str) -> Image.Image:
+    if not os.path.exists(BG_PATH):
+        raise RuntimeError(f"Background not found: {BG_PATH}. Put your A4 landscape PNG there.")
+
+    im = Image.open(BG_PATH).convert('RGBA')
+    w, h = im.size
+    draw = ImageDraw.Draw(im)
+
+    # Normalize and fit name
+    name = name.upper().strip()
+    max_name_width = int(w * 0.72)   # allow 72% of page width for name
+    font_name = fit_font(draw, name, FONT_BOLD_PATH, max_name_width, max_pt=100, min_pt=60, step=2)
+
+    # Date can be fixed or also fit (fixed here)
+    font_date = load_font(FONT_REG_PATH, 56)
+
+    # Positions (tune once to match your artwork)
+    name_x = w // 2
+    name_y = int(h * 0.460)   # ~46% from top
+    date_x = int(w * 0.130)   # ~13% from left
+    date_y = int(h * 0.750)   # ~75% from top
+
+    # Draw
+    draw.text((name_x, name_y), name, fill=(0, 0, 0), font=font_name, anchor='mm')  # center
+    draw.text((date_x, date_y), date_str, fill=(0, 0, 0), font=font_date, anchor='lm')  # left/middle
+
+    return im
+
+def _image_bytes(name: str, date_str: str) -> bytes:
+    img = build_certificate_image(name, date_str)
+    buf = BytesIO()
+    img.save(buf, format='PNG')
+    return buf.getvalue()
+
+# ======== Routes ========
+@app.route("/", methods=["GET", "POST"])
+def capture_name():
+    if request.method == "POST":
+        name = request.form.get("participant_name", "").strip()
+        if not name:
+            return render_template("name.html", error="Please enter your name.")
+        session["participant_name"] = name
+        return redirect(url_for("quiz"))
+    return render_template("name.html")
+
+@app.route("/quiz")
+def quiz():
+    if "participant_name" not in session:
+        return redirect(url_for("capture_name"))
     return render_template("quiz.html", questions=QUESTIONS)
 
-@app.route('/submit', methods=['POST'])
+@app.route("/submit", methods=["POST"])
 def submit():
+    if "participant_name" not in session:
+        return redirect(url_for("capture_name"))
+
     score = 0
     total = len(QUESTIONS)
     incorrect_answers = []
@@ -170,7 +255,51 @@ def submit():
                     "yours": q['options'][submitted]
                 })
 
-    return render_template("results.html", score=score, total=total, incorrect_answers=incorrect_answers)
+    participant_name = session["participant_name"]
+    today_str = datetime.today().strftime("%d.%m.%Y")
 
-if __name__ == '__main__':
-    app.run(debug=True)
+    return render_template(
+        "results.html",
+        name=participant_name,
+        date_str=today_str,
+        score=score,
+        total=total,
+        incorrect_answers=incorrect_answers
+    )
+
+@app.route("/certificate-image")
+def certificate_image():
+    """Return a PNG certificate (stable size)."""
+    name = request.args.get("name", "STUDENT")
+    date_str = request.args.get("date", datetime.today().strftime("%d.%m.%Y"))
+    download = request.args.get("download")
+
+    data = _image_bytes(name, date_str)
+    resp = make_response(data)
+    resp.mimetype = "image/png"
+    if download:
+        resp.headers["Content-Disposition"] = f'attachment; filename=\"certificate_{name}.png\"'
+    return resp
+
+@app.route("/certificate-pdf")
+def certificate_pdf():
+    """Return an A4 PDF by embedding the generated PNG."""
+    name = request.args.get("name", "STUDENT")
+    date_str = request.args.get("date", datetime.today().strftime("%d.%m.%Y"))
+
+    img_data = _image_bytes(name, date_str)
+    img = Image.open(BytesIO(img_data)).convert("RGB")
+
+    buf = BytesIO()
+    img.save(buf, format="PDF", resolution=300)
+    pdf_bytes = buf.getvalue()
+
+    resp = make_response(pdf_bytes)
+    resp.mimetype = "application/pdf"
+    resp.headers["Content-Disposition"] = f'attachment; filename=\"certificate_{name}.pdf\"'
+    return resp
+
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 5000))
+    # use_reloader=False prevents duplicate PIDs on dev
+    app.run(host="0.0.0.0", port=port, debug=True, use_reloader=False)
