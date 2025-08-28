@@ -144,6 +144,18 @@ kubectl apply -f nginx-statefulset.yaml
 ```
 
 ---
+  volumeClaimTemplates:
+    - metadata:
+        name: www
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 1Gi
+        volumeName: nginx-pv-0
+---
+
+---
 
 ## 🔍 Step 5: Verify Everything
 
