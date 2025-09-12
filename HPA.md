@@ -255,6 +255,10 @@ EOF
 
 
 ```
+```bash
+kubectl apply -f components.yaml
+```
+
 
 --
 Here’s what each thing does and when to use it:
