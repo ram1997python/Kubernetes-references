@@ -46,27 +46,248 @@ You’ll need:
 ### 1.1 Deploy Metrics Server
 
 ```bash
-kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+cat <<'EOF' > components.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    k8s-app: metrics-server
+  name: metrics-server
+  namespace: kube-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    k8s-app: metrics-server
+    rbac.authorization.k8s.io/aggregate-to-admin: "true"
+    rbac.authorization.k8s.io/aggregate-to-edit: "true"
+    rbac.authorization.k8s.io/aggregate-to-view: "true"
+  name: system:aggregated-metrics-reader
+rules:
+- apiGroups:
+  - metrics.k8s.io
+  resources:
+  - pods
+  - nodes
+  verbs:
+  - get
+  - list
+  - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    k8s-app: metrics-server
+  name: system:metrics-server
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - nodes/metrics
+  verbs:
+  - get
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  - nodes
+  verbs:
+  - get
+  - list
+  - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  labels:
+    k8s-app: metrics-server
+  name: metrics-server-auth-reader
+  namespace: kube-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: extension-apiserver-authentication-reader
+subjects:
+- kind: ServiceAccount
+  name: metrics-server
+  namespace: kube-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    k8s-app: metrics-server
+  name: metrics-server:system:auth-delegator
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:auth-delegator
+subjects:
+- kind: ServiceAccount
+  name: metrics-server
+  namespace: kube-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    k8s-app: metrics-server
+  name: system:metrics-server
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:metrics-server
+subjects:
+- kind: ServiceAccount
+  name: metrics-server
+  namespace: kube-system
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    k8s-app: metrics-server
+  name: metrics-server
+  namespace: kube-system
+spec:
+  ports:
+  - appProtocol: https
+    name: https
+    port: 443
+    protocol: TCP
+    targetPort: https
+  selector:
+    k8s-app: metrics-server
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    k8s-app: metrics-server
+  name: metrics-server
+  namespace: kube-system
+spec:
+  selector:
+    matchLabels:
+      k8s-app: metrics-server
+  strategy:
+    rollingUpdate:
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        k8s-app: metrics-server
+    spec:
+      hostNetwork: true
+      containers:
+      - args:
+        - --cert-dir=/tmp
+        - --kubelet-use-node-status-port
+        - --metric-resolution=15s
+        - --kubelet-insecure-tls
+        - --kubelet-preferred-address-types=InternalIP,Hostname,ExternalIP
+        - --secure-port=4443
+        image: registry.k8s.io/metrics-server/metrics-server:v0.8.0
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /livez
+            port: https
+            scheme: HTTPS
+          periodSeconds: 10
+        name: metrics-server
+        ports:
+        - containerPort: 4443
+          name: https
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /readyz
+            port: https
+            scheme: HTTPS
+          initialDelaySeconds: 20
+          periodSeconds: 10
+        resources:
+          requests:
+            cpu: 100m
+            memory: 200Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: 1000
+          seccompProfile:
+            type: RuntimeDefault
+        volumeMounts:
+        - mountPath: /tmp
+          name: tmp-dir
+      nodeSelector:
+        kubernetes.io/os: linux
+      priorityClassName: system-cluster-critical
+      serviceAccountName: metrics-server
+      volumes:
+      - emptyDir: {}
+        name: tmp-dir
+---
+apiVersion: apiregistration.k8s.io/v1
+kind: APIService
+metadata:
+  labels:
+    k8s-app: metrics-server
+  name: v1beta1.metrics.k8s.io
+spec:
+  group: metrics.k8s.io
+  groupPriorityMinimum: 100
+  insecureSkipTLSVerify: true
+  service:
+    name: metrics-server
+    namespace: kube-system
+  version: v1beta1
+  versionPriority: 100
+EOF
+
+
 ```
 
-### 1.2 Edit the Deployment to fix TLS errors
+--
+Here’s what each thing does and when to use it:
 
-```bash
-kubectl edit deployment metrics-server -n kube-system
-```
+### `hostNetwork: true`
 
-In the `containers:` section, add the following `args:`:
+* **What it does:** Runs the metrics-server pod in the node’s network namespace. The pod listens on the **node’s IP** (not the Pod IP) at port 4443.
+* **Why/when to use:** Workaround when the API server can’t reach Pod CIDRs or Service VIPs (CNI broken, kube-proxy missing on control-plane, strict firewalls). It often makes the APIService flip to `Available=True`.
+* **Caveats:**
 
-```yaml
-args:
-  - --kubelet-insecure-tls
-  - --kubelet-preferred-address-types=InternalIP,Hostname,InternalDNS,ExternalDNS,ExternalIP
-```
+  * Add `dnsPolicy: ClusterFirstWithHostNet`.
+  * Port 4443 must be free on the host.
+  * It’s a **workaround**; the real fix is healthy CNI and kube-proxy (or eBPF replacement).
 
-These arguments:
+### `--kubelet-insecure-tls`
 
-* Skip certificate validation (`--kubelet-insecure-tls`)
-* Connect using node IP addresses (`--kubelet-preferred-address-types`)
+* **What it does:** Tells metrics-server to **skip TLS verification** when scraping kubelets on `:10250`.
+* **Why/when to use:** Labs or clusters where kubelet serving certs **lack IP SANs** (your original error) or you don’t have the CA handy.
+* **Caveats / security:** Disables cert verification → vulnerable to MITM inside the cluster. **Don’t use in production.**
+
+  * **Proper fix:** enable kubelet `serverTLSBootstrap`, approve CSRs so the kubelet cert includes the node’s IP; or point metrics-server at the CA via `--kubelet-certificate-authority`.
+
+### `--kubelet-preferred-address-types=InternalIP,Hostname,ExternalIP`
+
+* **What it does:** Sets the **priority order** of addresses metrics-server uses to contact each kubelet.
+* **Why/when to use:** Ensures it tries the **InternalIP** first (usually routable & matches kubelet cert SANs).
+
+  * Putting `Hostname` second is fine **only if** cluster DNS resolves hostnames correctly; otherwise prefer `ExternalIP` second.
+* **Tips:** Common, safe default: `InternalIP,ExternalIP,Hostname`. In cloud VPCs, InternalIP is almost always right.
+
+---
+
+
 
 ### 1.3 Verify Metrics Server is working
 
@@ -74,6 +295,9 @@ These arguments:
 kubectl top nodes
 kubectl top pods
 ```
+
+<img width="787" height="189" alt="image" src="https://github.com/user-attachments/assets/7430c848-9bde-4645-bcec-9c3d83939a49" />
+
 
 You should see CPU/memory metrics. If not, wait a minute or check pod logs.
 
