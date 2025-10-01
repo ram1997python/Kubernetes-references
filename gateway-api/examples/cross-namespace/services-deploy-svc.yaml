@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jeevi-services
+  namespace: services-ns
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jeevi-services
+  template:
+    metadata:
+      labels:
+        app: jeevi-services
+    spec:
+      containers:
+      - name: services
+        image: yourdockerhub/jeevi-services
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jeevi-services
+  namespace: services-ns
+spec:
+  selector:
+    app: jeevi-services
+  ports:
+    - port: 80
+      targetPort: 80

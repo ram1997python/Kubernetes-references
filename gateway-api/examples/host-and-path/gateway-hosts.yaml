@@ -1,0 +1,21 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: jeevi-gateway-hosts
+spec:
+  gatewayClassName: example-gc
+  listeners:
+  - name: http
+    port: 80
+    protocol: HTTP
+    hostname: "blog.local"
+    allowedRoutes:
+      namespaces:
+        from: Same
+  - name: http-services
+    port: 80
+    protocol: HTTP
+    hostname: "services.local"
+    allowedRoutes:
+      namespaces:
+        from: Same

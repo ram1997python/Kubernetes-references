@@ -9,128 +9,28 @@ app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "change-me-please")
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = timedelta(seconds=0)  # disable static cache during dev
 
-# ======== Quiz questions ========
+# ======== Kubernetes Quiz questions ========
 QUESTIONS = [
-  {
-    "id": 1,
-    "question": "What does deployment mean in software development?",
-    "options": ["Writing code locally", "Putting an app live on the internet", "Testing code", "Designing user interfaces"],
-    "answer": 1
-  },
-  {
-    "id": 2,
-    "question": "Why is deployment important?",
-    "options": ["It hides code", "It lets clients and users access your work online", "It replaces coding", "It removes the need for testing"],
-    "answer": 1
-  },
-  {
-    "id": 3,
-    "question": "Which of the following is NOT a reason to avoid deploying immediately after programming?",
-    "options": ["Bugs may exist", "Security issues may appear", "User experience may be poor", "Code runs faster locally"],
-    "answer": 3
-  },
-  {
-    "id": 4,
-    "question": "What does ITIL stand for?",
-    "options": ["Information Technology Infrastructure Library", "Internet Technology Integration Layer", "Internal Testing Infrastructure Language", "Information Technology Innovation Lab"],
-    "answer": 0
-  },
-  {
-    "id": 5,
-    "question": "In ITIL, what is an 'Incident'?",
-    "options": ["A planned system upgrade", "A request for new software", "Something that breaks, like a printer not working", "The root cause of a bug"],
-    "answer": 2
-  },
-  {
-    "id": 6,
-    "question": "Who is the first point of contact for IT issues in ITIL?",
-    "options": ["Incident Manager", "Problem Manager", "Service Desk Agent", "Change Manager"],
-    "answer": 2
-  },
-  {
-    "id": 7,
-    "question": "Which ITIL role is responsible for approving and managing system changes?",
-    "options": ["Incident Manager", "Problem Manager", "Change Manager", "Service Desk Agent"],
-    "answer": 2
-  },
-  {
-    "id": 8,
-    "question": "What does DevOps stand for?",
-    "options": ["Development + Operations", "Device + Optimization", "Deployment + Options", "Design + Operations"],
-    "answer": 0
-  },
-  {
-    "id": 9,
-    "question": "What problem does DevOps primarily solve?",
-    "options": ["Bug fixing", "Lack of programming skills", "Disconnect between developers and operations", "Database scaling"],
-    "answer": 2
-  },
-  {
-    "id": 10,
-    "question": "Which of the following is a key benefit of DevOps?",
-    "options": ["More silos between teams", "Slower releases", "Faster collaboration and deployment", "Increased documentation overhead"],
-    "answer": 2
-  },
-  {
-    "id": 11,
-    "question": "Which stage in the DevOps lifecycle involves writing code collaboratively?",
-    "options": ["Plan", "Develop", "Build", "Release"],
-    "answer": 1
-  },
-  {
-    "id": 12,
-    "question": "Which stage in the DevOps lifecycle uses tools like Jenkins and Kubernetes?",
-    "options": ["Develop", "Build", "Deploy", "Monitor"],
-    "answer": 2
-  },
-  {
-    "id": 13,
-    "question": "What does a hypervisor do in virtualization?",
-    "options": ["Runs containers", "Allocates CPU, memory, and storage to virtual machines", "Hosts websites", "Manages databases"],
-    "answer": 1
-  },
-  {
-    "id": 14,
-    "question": "How is containerization different from virtualization?",
-    "options": ["Containers require separate OS, VMs share one OS", "Containers share the host OS kernel, VMs run full OS", "Containers cannot run apps", "VMs are faster than containers"],
-    "answer": 1
-  },
-  {
-    "id": 15,
-    "question": "What is Git primarily used for?",
-    "options": ["Database management", "Version control", "Cloud hosting", "Code compilation"],
-    "answer": 1
-  },
-  {
-    "id": 16,
-    "question": "What does a Git commit represent?",
-    "options": ["A snapshot of changes", "A new branch", "A merge conflict", "A deployment"],
-    "answer": 0
-  },
-  {
-    "id": 17,
-    "question": "Which of the following is a popular Linux distribution?",
-    "options": ["Windows", "Fedora", "iOS", "Solaris"],
-    "answer": 1
-  },
-  {
-    "id": 18,
-    "question": "What are the three layers in a three-tier architecture?",
-    "options": ["Data, Cloud, Virtualization", "Frontend, Middleware, Database", "Linux, Windows, Mac", "User, Server, Network"],
-    "answer": 1
-  },
-  {
-    "id": 19,
-    "question": "Which of the following is a benefit of Infrastructure as Code (IaC)?",
-    "options": ["Manual configuration", "Automation and consistency", "Slower deployment", "Higher error rate"],
-    "answer": 1
-  },
-  {
-    "id": 20,
-    "question": "What is Ansible mainly used for?",
-    "options": ["Cloud storage", "Configuration management and automation", "Version control", "Monitoring applications"],
-    "answer": 1
-  }
+  {"id": 1,  "question": "What is a Pod in Kubernetes?", "options": ["A single container only", "The smallest deployable unit that can contain one or more containers", "A Kubernetes node", "A storage volume"], "answer": 1},
+  {"id": 2,  "question": "Which object maintains desired state of Pods via ReplicaSets?", "options": ["DaemonSet", "Deployment", "Service", "ConfigMap"], "answer": 1},
+  {"id": 3,  "question": "Which Service type exposes the app externally using a port on each node?", "options": ["ClusterIP", "NodePort", "LoadBalancer", "ExternalName"], "answer": 1},
+  {"id": 4,  "question": "What is the default Service type?", "options": ["ClusterIP", "NodePort", "LoadBalancer", "Headless"], "answer": 0},
+  {"id": 5,  "question": "Which controller ensures one Pod per node?", "options": ["Deployment", "ReplicaSet", "StatefulSet", "DaemonSet"], "answer": 3},
+  {"id": 6,  "question": "Where does 'kubectl logs' read from?", "options": ["API Server DB", "Container runtime on the node", "etcd directly", "Ingress controller"], "answer": 1},
+  {"id": 7,  "question": "List all Pods in all namespaces", "options": ["kubectl get pods", "kubectl get pods -A", "kubectl get ns", "kubectl get all -n default"], "answer": 1},
+  {"id": 8,  "question": "Purpose of a ConfigMap?", "options": ["Store sensitive data", "Store non-confidential configuration data", "Provide persistent storage", "Schedule Pods"], "answer": 1},
+  {"id": 9,  "question": "Resource for mounting sensitive data?", "options": ["ConfigMap", "Secret", "PersistentVolume", "ServiceAccount"], "answer": 1},
+  {"id": 10, "question": "Probe that checks if app is ready to receive traffic?", "options": ["livenessProbe", "readinessProbe", "startupProbe", "healthProbe"], "answer": 1},
+  {"id": 11, "question": "Role of kube-scheduler?", "options": ["Schedule Pods onto nodes", "Manage container runtime", "Expose services", "Store cluster state"], "answer": 0},
+  {"id": 12, "question": "Which component stores cluster state?", "options": ["kubelet", "etcd", "controller-manager", "kube-proxy"], "answer": 1},
+  {"id": 13, "question": "What does a Namespace provide?", "options": ["Physical node isolation", "Logical isolation within a cluster", "Network policy", "Storage abstraction"], "answer": 1},
+  {"id": 14, "question": "Which object provides stable network identity and DNS for a set of Pods?", "options": ["Deployment", "Service", "Ingress", "Job"], "answer": 1},
+  {"id": 15, "question": "Which command describes details of a Pod?", "options": ["kubectl get pod mypod", "kubectl logs mypod", "kubectl describe pod mypod", "kubectl edit pod mypod"], "answer": 2},
+  {"id": 16, "question": "Which controller is best for ordered, sticky identities and persistent storage per replica?", "options": ["Deployment", "ReplicaSet", "StatefulSet", "CronJob"], "answer": 2},
+  {"id": 17, "question": "Which probe restarts a container if it becomes unhealthy?", "options": ["readinessProbe", "livenessProbe", "startupProbe", "execProbe"], "answer": 1},
+  {"id": 18, "question": "What does kube-proxy do?", "options": ["Schedules Pods", "Maintains network rules and Service virtual IPs", "Stores cluster state", "Runs container runtime"], "answer": 1},
+  {"id": 19, "question": "Which object lets you mount persistent storage into Pods?", "options": ["ConfigMap", "Secret", "PersistentVolumeClaim", "ServiceAccount"], "answer": 2},
+  {"id": 20, "question": "Which resource type configures L7 HTTP routing into the cluster in modern Kubernetes?", "options": ["EndpointSlice", "Gateway API (HTTPRoute)", "ReplicaSet", "DaemonSet"], "answer": 1}
 ]
 
 

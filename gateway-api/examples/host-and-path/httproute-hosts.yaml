@@ -1,0 +1,35 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: blog-host-route
+spec:
+  parentRefs:
+  - name: jeevi-gateway-hosts
+  hostnames:
+  - blog.local
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /
+    backendRefs:
+    - name: jeevi-blog
+      port: 80
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: services-host-route
+spec:
+  parentRefs:
+  - name: jeevi-gateway-hosts
+  hostnames:
+  - services.local
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /
+    backendRefs:
+    - name: jeevi-services
+      port: 80
