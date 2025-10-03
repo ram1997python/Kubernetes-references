@@ -26,12 +26,17 @@ Gateway API defines CRDs but needs a controller to implement them. Choose one:
   ```bash
   kubectl apply -f https://github.com/envoyproxy/gateway/releases/latest/download/install.yaml
   ```
-
-- NGINX Gateway Fabric:
-
-  ```bash
-  kubectl apply -f https://github.com/nginxinc/nginx-gateway-fabric/releases/latest/download/install.yaml
   ```
+  openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+  -out /tmp/tls.crt -keyout /tmp/tls.key \
+  -subj "/CN=envoy-gateway/O=envoy-gateway"
+  ```
+  ```
+  kubectl create secret tls envoy-gateway \
+  --cert=/tmp/tls.crt \
+  --key=/tmp/tls.key \
+  -n envoy-gateway-system
+  ````
 
 Verify CRDs and controller pods:
 
@@ -47,13 +52,6 @@ For local setups without a LoadBalancer (e.g., Vagrant), the Gateway Service mig
   ```bash
   kubectl get svc -A | grep envoy-gateway # find the service
   kubectl patch svc envoy-gateway -n envoy-gateway-system -p '{"spec": {"type": "NodePort"}}'
-  ```
-
-- NGINX Gateway Fabric example:
-
-  ```bash
-  kubectl get svc -A | grep nginx-gateway
-  kubectl patch svc nginx-gateway -n nginx-gateway -p '{"spec": {"type": "NodePort"}}'
   ```
 
 ---
@@ -104,7 +102,7 @@ Files in this folder:
 Get the Gateway’s Service and NodePort:
 
 ```bash
-kubectl get svc -A | egrep "envoy-gateway|nginx-gateway"
+kubectl get svc -A | egrep "envoy-gateway"
 ```
 
 Example URLs if NodePort is `31080`:
